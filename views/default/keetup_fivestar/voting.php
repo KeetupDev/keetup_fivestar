@@ -15,7 +15,7 @@
                 // Display message to the user at the begining of request
                 $("#fivestar-messages-"+id).text("<?php echo elgg_echo('saving'); ?>").stop().css("opacity", 1).fadeIn(30);
 
-                $.post("<?php echo elgg_get_site_url(); ?>action/elggx_fivestar/rate", {id: id, vote: value, __elgg_token: token, __elgg_ts: ts}, function(db)
+                $.post("<?php echo elgg_get_site_url(); ?>action/keetup_fivestar/rate", {id: id, vote: value, __elgg_token: token, __elgg_ts: ts}, function(db)
                 {
                     // Select stars from "Average rating" control to match the returned average rating value
                     $("#fivestar-form-"+id).stars("select", Math.round(db.rating));
@@ -28,7 +28,7 @@
                     if (db.msg) {
                         $("#fivestar-messages-"+id).text(db.msg).stop().css("opacity", 1).fadeIn(30);
                     } else {
-                        $("#fivestar-messages-"+id).text("<?php echo elgg_echo('elggx_fivestar:rating_saved'); ?>").stop().css("opacity", 1).fadeIn(30);
+                        $("#fivestar-messages-"+id).text("<?php echo elgg_echo('keetup_fivestar:rating_saved'); ?>").stop().css("opacity", 1).fadeIn(30);
                     }
 
                     // Hide confirmation message and enable stars for "Rate this" control, after 2 sec...
@@ -58,8 +58,8 @@ if (!$guid) {
     return;
 }
 
-$rating = elggx_fivestar_getRating($guid);
-$stars = (int)elgg_get_plugin_setting('stars', 'elggx_fivestar');
+$rating = keetup_fivestar_getRating($guid);
+$stars = (int)elgg_get_plugin_setting('stars', 'keetup_fivestar');
 
 $pps = 100 / $stars;
 
@@ -70,8 +70,8 @@ if (!elgg_is_logged_in()) {
     $disabled = 'disabled="disabled"';
 }
 
-if (!(int)elgg_get_plugin_setting('change_cancel', 'elggx_fivestar')) {
-    if (elggx_fivestar_hasVoted($guid)) {
+if (!(int)elgg_get_plugin_setting('change_cancel', 'keetup_fivestar')) {
+    if (keetup_fivestar_hasVoted($guid)) {
         $disabled = 'disabled="disabled"';
     }
 }
@@ -82,7 +82,7 @@ $ratingText = $vars['ratingTextClass'] ? 'class="' . $vars['ratingTextClass'] . 
 ?>
 
 <div <?php echo $outerId; ?> class="fivestar-ratings-outer fivestar-ratings-<?php echo $guid . $subclass; ?>">
-    <form id="fivestar-form-<?php echo $guid; ?>" style="width: 200px" action="<?php echo elgg_get_site_url(); ?>action/elggx_fivestar/rate" method="post">
+    <form id="fivestar-form-<?php echo $guid; ?>" style="width: 200px" action="<?php echo elgg_get_site_url(); ?>action/keetup_fivestar/rate" method="post">
         <?php for ($i = 1; $i <= $stars; $i++) { ?>
             <?php if (round($rating['rating']) == $i) { $checked = 'checked="checked"'; } ?>
                 <input type="radio" name="rate_avg" <?php echo $checked; ?> <?php echo $disabled; ?> value="<?php echo $pps * $i; ?>" />
@@ -96,7 +96,7 @@ $ratingText = $vars['ratingTextClass'] ? 'class="' . $vars['ratingTextClass'] . 
     <div class="clearfloat">
     <?php if (!$vars['min']) { ?>
         <p <?php echo $ratingText; ?>>
-            <span id="fivestar-rating-<?php echo $guid; ?>"><?php echo $rating['rating']; ?></span>/<?php echo $stars . ' ' . elgg_echo('elggx_fivestar:lowerstars'); ?> (<span id="fivestar-votes-<?php echo $guid; ?>"><?php echo $rating['votes'] . ' ' . elgg_echo('elggx_fivestar:votes'); ?></span>)
+            <span id="fivestar-rating-<?php echo $guid; ?>"><?php echo $rating['rating']; ?></span>/<?php echo $stars . ' ' . elgg_echo('keetup_fivestar:lowerstars'); ?> (<span id="fivestar-votes-<?php echo $guid; ?>"><?php echo $rating['votes'] . ' ' . elgg_echo('keetup_fivestar:votes'); ?></span>)
         </p>
     <?php } ?>
     </div>

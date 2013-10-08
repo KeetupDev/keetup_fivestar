@@ -4,29 +4,29 @@ if (!function_exists('str_get_html')) {
     include dirname(__FILE__) . "/lib/simple_html_dom.php";
 }
 
-elgg_register_event_handler('init','system','elggx_fivestar_init');
+elgg_register_event_handler('init','system','keetup_fivestar_init');
 
-function elggx_fivestar_init() {
+function keetup_fivestar_init() {
 
-    elggx_fivestar_settings();
+    keetup_fivestar_settings();
 
     $css_rating = elgg_get_simplecache_url('css', 'basic');
     elgg_register_simplecache_view('css/basic');
     elgg_register_css('fivestar_css', $css_rating);
 
-    $js_rating = elgg_get_simplecache_url('js', 'elggx_fivestar/ui.stars.min');
-    elgg_register_simplecache_view('js/elggx_fivestar/ui.stars.min');
+    $js_rating = elgg_get_simplecache_url('js', 'keetup_fivestar/ui.stars.min');
+    elgg_register_simplecache_view('js/keetup_fivestar/ui.stars.min');
     elgg_register_js('fivestar', $js_rating);
 
-//    elgg_register_plugin_hook_handler('view', 'all', 'elggx_fivestar_view');
+//    elgg_register_plugin_hook_handler('view', 'all', 'keetup_fivestar_view');
 
-    elgg_register_admin_menu_item('administer', 'elggx_fivestar', 'administer_utilities');
+    elgg_register_admin_menu_item('administer', 'keetup_fivestar', 'administer_utilities');
 
     // Register actions
-    $base_dir = elgg_get_plugins_path() . 'elggx_fivestar/actions';
-    elgg_register_action("elggx_fivestar/rate", "$base_dir/rate.php", 'logged_in');
-    elgg_register_action("elggx_fivestar/settings", "$base_dir/settings.php", 'admin');
-    elgg_register_action("elggx_fivestar/reset", "$base_dir/reset.php", 'admin');
+    $base_dir = elgg_get_plugins_path() . 'keetup_fivestar/actions';
+    elgg_register_action("keetup_fivestar/rate", "$base_dir/rate.php", 'logged_in');
+    elgg_register_action("keetup_fivestar/settings", "$base_dir/settings.php", 'admin');
+    elgg_register_action("keetup_fivestar/reset", "$base_dir/reset.php", 'admin');
 }
 
 /**
@@ -40,9 +40,9 @@ function elggx_fivestar_init() {
  * @param  array    $params An array of parameters for the current view
  * @return string   The html
  */
-function elggx_fivestar_view($hook, $entity_type, $returnvalue, $params) {
+function keetup_fivestar_view($hook, $entity_type, $returnvalue, $params) {
 
-    $lines = explode("\n", elgg_get_plugin_setting('elggx_fivestar_view'));
+    $lines = explode("\n", elgg_get_plugin_setting('keetup_fivestar_view'));
     foreach ($lines as $line) {
         $options = array();
         $parms = explode(",", $line);
@@ -51,8 +51,8 @@ function elggx_fivestar_view($hook, $entity_type, $returnvalue, $params) {
             $options[$match[1]] = $match[2];
         }
 
-        if ($options['elggx_fivestar_view'] == $params['view']) {
-            list($status, $html) = elggx_fivestar_widget($returnvalue, $params, $options);
+        if ($options['keetup_fivestar_view'] == $params['view']) {
+            list($status, $html) = keetup_fivestar_widget($returnvalue, $params, $options);
             if (!$status) {
                 continue;
             } else {
@@ -69,7 +69,7 @@ function elggx_fivestar_view($hook, $entity_type, $returnvalue, $params) {
  * @param  integer  $vote The vote
  * @return string   A status message to be returned to the client
  */
-function elggx_fivestar_vote($guid, $vote) {
+function keetup_fivestar_vote($guid, $vote) {
 
     $entity = get_entity($guid);
     $annotation_owner = elgg_get_logged_in_user_guid();
@@ -82,25 +82,25 @@ function elggx_fivestar_vote($guid, $vote) {
                                                  'annotation_owner_guid' => $annotation_owner,
                                                  'limit' => 1))) {
         if ($vote == 0 && (int)elgg_get_plugin_setting('change_cancel')) {
-            if (!elgg_trigger_plugin_hook('elggx_fivestar:cancel', 'all', array('entity' => $entity), false)) {
+            if (!elgg_trigger_plugin_hook('keetup_fivestar:cancel', 'all', array('entity' => $entity), false)) {
                 elgg_delete_annotations(array('annotation_id' => $annotation[0]->id));
-                $msg = elgg_echo('elggx_fivestar:deleted');
+                $msg = elgg_echo('keetup_fivestar:deleted');
             }
         } else if (elgg_get_plugin_setting('change_cancel')) {
             update_annotation($annotation[0]->id, 'fivestar', $vote, 'integer', $annotation_owner, 2);
-            $msg = elgg_echo('elggx_fivestar:updated');
+            $msg = elgg_echo('keetup_fivestar:updated');
         } else {
-            $msg = elgg_echo('elggx_fivestar:nodups');
+            $msg = elgg_echo('keetup_fivestar:nodups');
         }
     } else if ($vote > 0) {
-        if (!elgg_trigger_plugin_hook('elggx_fivestar:vote', 'all', array('entity' => $entity), false)) {
+        if (!elgg_trigger_plugin_hook('keetup_fivestar:vote', 'all', array('entity' => $entity), false)) {
             $entity->annotate('fivestar', $vote, 2, $annotation_owner);
         }
     } else {
-        $msg = elgg_echo('elggx_fivestar:novote');
+        $msg = elgg_echo('keetup_fivestar:novote');
     }
 
-    elggx_fivestar_setRating($entity);
+    keetup_fivestar_setRating($entity);
 
     return($msg);
 }
@@ -111,12 +111,12 @@ function elggx_fivestar_vote($guid, $vote) {
  * @param  object   $entity  The entity to set the rating on
  * @return array    Includes the current rating and number of votes
  */
-function elggx_fivestar_setRating($entity) {
+function keetup_fivestar_setRating($entity) {
 
     $access = elgg_set_ignore_access(true);
 
-    $rating = elggx_fivestar_getRating($entity->guid);
-    $entity->elggx_fivestar_rating = $rating['rating'];
+    $rating = keetup_fivestar_getRating($entity->guid);
+    $entity->keetup_fivestar_rating = $rating['rating'];
 
     elgg_set_ignore_access($access);
 
@@ -129,7 +129,7 @@ function elggx_fivestar_setRating($entity) {
  * @param  integer  $guid  The entity guid being voted on
  * @return array    Includes the current rating and number of votes
  */
-function elggx_fivestar_getRating($guid) {
+function keetup_fivestar_getRating($guid) {
 
     $rating = array('rating' => 0, 'votes' => 0);
     $entity = get_entity($guid);
@@ -153,7 +153,7 @@ function elggx_fivestar_getRating($guid) {
  * @param  array    $guid  The fivestar view configuration
  * @return string   The original view or the view with the fivestar widget inserted
  */
-function elggx_fivestar_widget($returnvalue, $params, $options) {
+function keetup_fivestar_widget($returnvalue, $params, $options) {
 
     $guid = $params['vars']['entity']->guid;
 
@@ -162,9 +162,9 @@ function elggx_fivestar_widget($returnvalue, $params, $options) {
     }
 
     if (elgg_in_context('widgets')) {
-        $widget = elgg_view("elggx_fivestar/voting", array('fivestar_guid' => $guid, 'min' => true));
+        $widget = elgg_view("keetup_fivestar/voting", array('fivestar_guid' => $guid, 'min' => true));
     } else {
-        $widget = elgg_view("elggx_fivestar/voting", array('fivestar_guid' => $guid));
+        $widget = elgg_view("keetup_fivestar/voting", array('fivestar_guid' => $guid));
     }
 
     // get the DOM
@@ -189,7 +189,7 @@ function elggx_fivestar_widget($returnvalue, $params, $options) {
  * @param  guid   The entity guid
  * @return bool   Returns true/false
  */
-function elggx_fivestar_hasVoted($guid) {
+function keetup_fivestar_hasVoted($guid) {
 
     $entity = get_entity($guid);
     $annotation_owner = elgg_get_logged_in_user_guid();
@@ -211,31 +211,31 @@ function elggx_fivestar_hasVoted($guid) {
  * Set default settings
  *
  */
-function elggx_fivestar_settings() {
+function keetup_fivestar_settings() {
     // Set plugin defaults
-    if (!(int)elgg_get_plugin_setting('stars', 'elggx_fivestar')) {
-        elgg_set_plugin_setting('stars', '5', 'elggx_fivestar');
+    if (!(int)elgg_get_plugin_setting('stars', 'keetup_fivestar')) {
+        elgg_set_plugin_setting('stars', '5', 'keetup_fivestar');
     }
-    $change_vote = (int)elgg_get_plugin_setting('change_vote', 'elggx_fivestar');
+    $change_vote = (int)elgg_get_plugin_setting('change_vote', 'keetup_fivestar');
     if ($change_vote == 0) {
-        elgg_set_plugin_setting('change_cancel', 0, 'elggx_fivestar');
+        elgg_set_plugin_setting('change_cancel', 0, 'keetup_fivestar');
     } else {
-        elgg_set_plugin_setting('change_cancel', 1, 'elggx_fivestar');
+        elgg_set_plugin_setting('change_cancel', 1, 'keetup_fivestar');
     }
 }
 
-function elggx_fivestar_defaults() {
+function keetup_fivestar_defaults() {
 
-$elggx_fivestar_view = 'elggx_fivestar_view=object/blog, tag=div, attribute=class, attribute_value=elgg-subtext, before_html=<br />
-elggx_fivestar_view=object/file, tag=div, attribute=class, attribute_value=elgg-subtext, before_html=<br />
-elggx_fivestar_view=object/bookmarks, tag=div, attribute=class, attribute_value=elgg-subtext, before_html=<br />
-elggx_fivestar_view=object/page_top, tag=div, attribute=class, attribute_value=elgg-subtext, before_html=<br />
-elggx_fivestar_view=object/thewire, tag=div, attribute=class, attribute_value=elgg-subtext, before_html=<br />
-elggx_fivestar_view=group/default, tag=div, attribute=class, attribute_value=elgg-subtext, before_html=<br>
-elggx_fivestar_view=object/groupforumtopic, tag=div, attribute=class, attribute_value=elgg-subtext, before_html=<br />
-elggx_fivestar_view=icon/user/default, tag=div, attribute=class, attribute_value=elgg-avatar elgg-avatar-large, before_html=<br>
-elggx_fivestar_view=object/album, tag=div, attribute=class, attribute_value=elgg-subtext, before_html=<br />
-elggx_fivestar_view=object/image, tag=div, attribute=class, attribute_value=elgg-subtext, before_html=<br />';
+$keetup_fivestar_view = 'keetup_fivestar_view=object/blog, tag=div, attribute=class, attribute_value=elgg-subtext, before_html=<br />
+keetup_fivestar_view=object/file, tag=div, attribute=class, attribute_value=elgg-subtext, before_html=<br />
+keetup_fivestar_view=object/bookmarks, tag=div, attribute=class, attribute_value=elgg-subtext, before_html=<br />
+keetup_fivestar_view=object/page_top, tag=div, attribute=class, attribute_value=elgg-subtext, before_html=<br />
+keetup_fivestar_view=object/thewire, tag=div, attribute=class, attribute_value=elgg-subtext, before_html=<br />
+keetup_fivestar_view=group/default, tag=div, attribute=class, attribute_value=elgg-subtext, before_html=<br>
+keetup_fivestar_view=object/groupforumtopic, tag=div, attribute=class, attribute_value=elgg-subtext, before_html=<br />
+keetup_fivestar_view=icon/user/default, tag=div, attribute=class, attribute_value=elgg-avatar elgg-avatar-large, before_html=<br>
+keetup_fivestar_view=object/album, tag=div, attribute=class, attribute_value=elgg-subtext, before_html=<br />
+keetup_fivestar_view=object/image, tag=div, attribute=class, attribute_value=elgg-subtext, before_html=<br />';
 
-elgg_set_plugin_setting('elggx_fivestar_view', $elggx_fivestar_view);
+elgg_set_plugin_setting('keetup_fivestar_view', $keetup_fivestar_view);
 }

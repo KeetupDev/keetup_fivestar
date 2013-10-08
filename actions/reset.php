@@ -1,5 +1,5 @@
 <?php
 
-elggx_fivestar_defaults();
+keetup_fivestar_defaults();
 
 forward(REFERER);
