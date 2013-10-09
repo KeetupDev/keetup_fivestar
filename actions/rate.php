@@ -7,10 +7,11 @@ if (!$vote && $rate = (int)get_input('rate_avg')) {
     $vote = $rate;
 }
 
-$msg = keetup_fivestar_vote($guid, $vote);
+$kh = new KeetupFivestarHandler();
+$msg = $kh->doVote($guid, $vote);
 
 // Get the new rating
-$rating = keetup_fivestar_getRating($guid);
+$rating = $kh->getRating($guid);
 
 $rating['msg'] = $msg;
 

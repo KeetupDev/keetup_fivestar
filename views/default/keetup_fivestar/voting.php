@@ -1,3 +1,7 @@
+<?php 
+$kh = new KeetupFivestarHandler();
+?>
+
 <script type="text/javascript">
     function fivestar(id, token, ts) {
         $("#fivestar-form-"+id).children().not("select").hide();
@@ -58,20 +62,20 @@ if (!$guid) {
     return;
 }
 
-$rating = keetup_fivestar_getRating($guid);
-$stars = (int)elgg_get_plugin_setting('stars', 'keetup_fivestar');
+$rating = $kh->getRating($guid);
+$stars = $kh->getStarsSetting();
 
 $pps = 100 / $stars;
 
 $checked = '';
 
 $disabled = '';
-if (!elgg_is_logged_in()) {
-    $disabled = 'disabled="disabled"';
-}
+//if (!elgg_is_logged_in()) {
+//    $disabled = 'disabled="disabled"';
+//}
 
-if (!(int)elgg_get_plugin_setting('change_cancel', 'keetup_fivestar')) {
-    if (keetup_fivestar_hasVoted($guid)) {
+if (!$kh->isChangeCancel()) {
+    if ($kh->hasVoted($guid)) {
         $disabled = 'disabled="disabled"';
     }
 }

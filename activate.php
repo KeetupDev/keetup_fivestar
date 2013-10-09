@@ -5,6 +5,7 @@
  */
 
 keetup_fivestar_create_db();
+keetup_fivestar_settings();
 
 // Upgrade settings
 $oldversion = elgg_get_plugin_setting('version', 'keetup_fivestar');

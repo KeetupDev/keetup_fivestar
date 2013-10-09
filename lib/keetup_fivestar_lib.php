@@ -19,11 +19,11 @@ function keetup_fivestar_get_from_id($id) {
 }
 
 /**
- * Convert a database row to a new ElggAnnotation
+ * Convert a database row to a new KeetupFivestarEntity
  *
  * @param stdClass $row Db row result object
  *
- * @return ElggAnnotation
+ * @return KeetupFivestarEntity
  * @access private
  */
 function row_to_fivestar($row) {
@@ -38,15 +38,15 @@ function row_to_fivestar($row) {
 /**
  * Deletes a keetup fivestar using its ID.
  *
- * @param int $id The annotation ID to delete.
+ * @param int $id The keetup_fivestar ID to delete.
  * @return bool
  */
 function keetup_fivestar_delete_by_id($id) {
-	$annotation = keetup_fivestar_get_from_id($id);
-	if (!$annotation) {
+	$fivestar = keetup_fivestar_get_from_id($id);
+	if (!$fivestar) {
 		return FALSE;
 	}
-	return $annotation->delete();
+	return $fivestar->delete();
 }
 
 /**
@@ -106,7 +106,7 @@ function keetup_fivestar_create_entity($entity_guid, $value, $ip, $owner_guid) {
 			if (elgg_trigger_event('create', 'keetup_fivestar', $obj)) {
 				return $result;
 			} else {
-				// plugin returned false to reject annotation
+				// plugin returned false to reject fivestar
 				keetup_fivestar_delete_by_id($result);
 				return FALSE;
 			}
@@ -193,13 +193,6 @@ function keetup_fivestar_update_entity($fivestar_id, $value, $ip, $owner_guid) {
  *
  * 	callback => string A callback function to pass each row through
  *
- * @return mixed If count, int. If not count, array. false on errors.
- * @since 1.7.0
- * @see elgg_get_entities_from_metadata()
- * @see elgg_get_entities_from_relationship()
- * @see elgg_get_entities_from_access_id()
- * @see elgg_get_entities_from_annotations()
- * @see elgg_list_entities()
  * @link http://docs.elgg.org/DataModel/Entities/Getters
  */
 function keetup_fivestar_get_entities(array $options = array()) {
@@ -298,14 +291,14 @@ function keetup_fivestar_get_entities(array $options = array()) {
 			$query = "SELECT {$options['data_calculation']}(fv.value) as calculation FROM {$fivestar_table} fv ";
 		}
 	} else {
-		$query = "SELECT count(DISTINCT e.guid) as total FROM {$fivestar_table} fv ";
+		$query = "SELECT count(DISTINCT fv.id) as total FROM {$fivestar_table} fv ";
 	}
 
 	// add joins
 	foreach ($joins as $j) {
 		$query .= " $j ";
 	}
-	
+
 	// add wheres
 	$query .= ' WHERE ';
 
@@ -333,7 +326,7 @@ function keetup_fivestar_get_entities(array $options = array()) {
 			$offset = sanitise_int($options['offset'], false);
 			$query .= " LIMIT $offset, $limit";
 		}
-		
+
 		if ($options['get_row']) {
 			$dt = get_data_row($query, $options['callback']);
 		} else {
@@ -349,4 +342,29 @@ function keetup_fivestar_get_entities(array $options = array()) {
 			return $result->calculation;
 		}
 	}
+}
+
+/**
+ * Get the real client IP
+ * @return string
+ */
+function keetup_fivestar_get_client_ip() {
+	// Function to get the client ip address
+	$ipaddress = '';
+	if ($_SERVER['HTTP_CLIENT_IP'])
+		$ipaddress = $_SERVER['HTTP_CLIENT_IP'];
+	else if ($_SERVER['HTTP_X_FORWARDED_FOR'])
+		$ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
+	else if ($_SERVER['HTTP_X_FORWARDED'])
+		$ipaddress = $_SERVER['HTTP_X_FORWARDED'];
+	else if ($_SERVER['HTTP_FORWARDED_FOR'])
+		$ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
+	else if ($_SERVER['HTTP_FORWARDED'])
+		$ipaddress = $_SERVER['HTTP_FORWARDED'];
+	else if ($_SERVER['REMOTE_ADDR'])
+		$ipaddress = $_SERVER['REMOTE_ADDR'];
+	else
+		$ipaddress = 'UNKNOWN';
+
+	return $ipaddress;
 }
