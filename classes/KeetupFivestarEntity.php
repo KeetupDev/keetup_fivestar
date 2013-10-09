@@ -5,7 +5,7 @@
  *
  * @author Bortoli German
 
- * @property string $type         annotation or metadata (read-only after save)
+ * @property string $type         fivestar or metadata (read-only after save)
  * 
  * @property int    $id           The unique identifier (read-only)
  * @property int    $entity_guid  The GUID of the entity that this extender describes
@@ -27,13 +27,13 @@ class KeetupFivestarEntity extends ElggExtender {
 		
 		$this->attributes['time_updated'] = NULL;
 		$this->attributes['owner_guid'] = 0;
-		$this->attributes['ip'] = ip2long($this->getClientIp());
+		$this->attributes['ip'] = $this->getClientIp2Long();
 	}
 
 	/**
 	 * Construct a new keetup fivestar object
 	 *
-	 * @param mixed $id The annotation ID or a database row as stdClass object
+	 * @param mixed $id The fivestar ID or a database row as stdClass object
 	 */
 	function __construct($id = NULL) {
 
@@ -42,17 +42,17 @@ class KeetupFivestarEntity extends ElggExtender {
 		if (!empty($id)) {
 			// Create from db row
 			if ($id instanceof stdClass) {
-				$annotation = $id;
+				$fivestar = $id;
 
-				$objarray = (array) $annotation;
+				$objarray = (array) $fivestar;
 				foreach ($objarray as $key => $value) {
 					$this->attributes[$key] = $value;
 				}
 			} else {
-				// get an ElggAnnotation object and copy its attributes
-				$annotation = $this->getObjectFromID($id);
+				// get an KeetupFivestarEntity object and copy its attributes
+				$fivestar = $this->getObjectFromID($id);
 
-				$this->attributes = $annotation->attributes;
+				$this->attributes = $fivestar->attributes;
 			}
 		}
 	}
@@ -62,11 +62,11 @@ class KeetupFivestarEntity extends ElggExtender {
 	 */
 	
 	public function delete() {
-		$dbprefix = elgg_get_config('dbprefix');
+		$fivestar_table = KEETUP_FIVESTAR_TABLE;
 		
 		$id = $this->id;
 		if ($id && $this->canEdit()) {
-			$query = "DELETE FROM {$dbprefix}fivestar WHERE id = {$id}";
+			$query = "DELETE FROM {$fivestar_table} WHERE id = {$id}";
 			return delete_data($query);
 		}
 		
@@ -154,6 +154,16 @@ class KeetupFivestarEntity extends ElggExtender {
 			$ipaddress = 'UNKNOWN';
 
 		return $ipaddress;
+	}
+	
+	/**
+	 * Get the client IP 2 Long
+	 * 
+	 * @return integer
+	 */
+	
+	public function getClientIp2Long() {
+		return ip2long($this->getClientIp());
 	}
 
 	

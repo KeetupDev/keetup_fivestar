@@ -1,5 +1,8 @@
 <?php
 
+define('KEETUP_FIVESTAR_PATH', dirname(__FILE__).'/');
+define('KEETUP_FIVESTAR_TABLE', elgg_get_config('dbprefix').'fivestar');
+
 include dirname(__FILE__) . "/lib/keetup_fivestar_lib.php";
 
 if (!function_exists('str_get_html')) {
@@ -27,9 +30,11 @@ function keetup_fivestar_init() {
 
 	// Register actions
 	$base_dir = elgg_get_plugins_path() . 'keetup_fivestar/actions';
-	elgg_register_action("keetup_fivestar/rate", "{$base_dir}/rate.php", 'logged_in');
+	elgg_register_action("keetup_fivestar/rate", "{$base_dir}/rate.php", 'public');
 	elgg_register_action("keetup_fivestar/settings", "{$base_dir}/settings.php", 'admin');
 	elgg_register_action("keetup_fivestar/reset", "{$base_dir}/reset.php", 'admin');
+	
+	
 }
 
 /**
@@ -243,4 +248,30 @@ keetup_fivestar_view=object/album, tag=div, attribute=class, attribute_value=elg
 keetup_fivestar_view=object/image, tag=div, attribute=class, attribute_value=elgg-subtext, before_html=<br />';
 
 	elgg_set_plugin_setting('keetup_fivestar_view', $keetup_fivestar_view);
+}
+
+/**
+ * Creates the base table for fivestars
+ * 
+ * @return boolean
+ */
+function keetup_fivestar_create_db() {
+	$schema_file = KEETUP_FIVESTAR_PATH . 'schema/fivestar.sql';
+	
+	$sql = 'show tables like "'.KEETUP_FIVESTAR_TABLE.'"';
+
+	try {
+		$data = get_data($sql);
+	} catch (Exception $exc) {
+		$data = FALSE;
+	}
+
+	$success = FALSE;
+	if (empty($data)) {
+		try {
+			$success = run_sql_script($schema_file);
+		} catch (Exception $exc) {}
+	}
+
+	return $success;
 }

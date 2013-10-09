@@ -2,7 +2,15 @@
 $path = dirname(dirname(dirname(dirname(__FILE__)))).'/';
 include_once($path.'engine/start.php');
 
-$ob = new KeetupFivestarEntity();
+	$ob = new KeetupFivestarEntity();
+	$ob->value = 5;
+	$ob->entity_guid = 56;
+
+	$result = $ob->save();
+	
+	echo "<pre>";
+var_dump($result);
+echo "</pre>";
 
 /**
  * @checked $ob->delete()

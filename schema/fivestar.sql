@@ -1,4 +1,4 @@
-CREATE TABLE `elgg_fivestar` (
+CREATE TABLE `prefix_fivestar` (
   `id` bigint(11) NOT NULL AUTO_INCREMENT,
 
   `entity_guid` bigint(20) unsigned NOT NULL,
@@ -17,4 +17,4 @@ CREATE TABLE `elgg_fivestar` (
   KEY `entity_guid` (`entity_guid`),
   KEY `owner_guid` (`owner_guid`),
   KEY `ip` (`ip`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=8 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;

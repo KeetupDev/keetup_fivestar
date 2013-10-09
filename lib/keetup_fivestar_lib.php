@@ -13,8 +13,9 @@ function keetup_fivestar_get_from_id($id) {
 		return NULL;
 	}
 
-	$dbprefix = elgg_get_config('dbprefix');
-	return get_data_row("SELECT * FROM {$dbprefix}fivestar WHERE id = {$id}", 'row_to_fivestar');
+	$fivestar_table = KEETUP_FIVESTAR_TABLE;
+	
+	return get_data_row("SELECT * FROM {$fivestar_table} WHERE id = {$id}", 'row_to_fivestar');
 }
 
 /**
@@ -95,11 +96,11 @@ function keetup_fivestar_create_entity($entity_guid, $value, $ip, $owner_guid) {
 	 *	Add validations when the user is trying to vote and there is an IP but not an owner_id (anonymous user)
 	 */
 	
-	$dbprefix = elgg_get_config('dbprefix');
+	$fivestar_table = KEETUP_FIVESTAR_TABLE;
 	
 	if (elgg_trigger_event('keetup_fivestar', $entity->type, $entity)) {
 		// If ok then add it
-		$result = insert_data("INSERT into {$dbprefix}fivestar
+		$result = insert_data("INSERT into {$fivestar_table}
 			(entity_guid, owner_guid, ip, value, time_created, time_updated) VALUES
 			($entity_guid,$owner_guid, $ip_long, $value, $time, $time)");
 
