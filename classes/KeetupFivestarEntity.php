@@ -76,12 +76,25 @@ class KeetupFivestarEntity extends ElggExtender {
 	
 	public function canEdit($user_guid = 0, $current_ip = 0) {
 		
-		return TRUE;
+		if (empty($current_ip)) {
+			$current_ip = $this->getClientIp2Long();
+		}
 		
-		/**
-		 * @TODO: VALIDATES IF THE USER IP IS THE SAME AS THE CURRENT ONE
-		 * @TODO: VALIDATES IF THE USER HAS OWNER GUID AND IS THE SAME AS THE CURRENT ONE
-		 */
+		if (empty($user_guid)) {
+			$user_guid = elgg_get_logged_in_user_guid();
+		}
+		
+		$entity_ip = $this->ip;
+		$entity_owner_guid = $this->owner_guid;
+		
+		$same_ip = ($entity_ip == $current_ip);
+		$same_owner = ($entity_owner_guid == $user_guid);
+		
+		if ($same_ip && $same_owner) {
+			return TRUE;
+		}
+		
+		return  FALSE;
 	}
 
 	/**
