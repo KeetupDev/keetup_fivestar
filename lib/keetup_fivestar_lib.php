@@ -14,7 +14,7 @@ function keetup_fivestar_get_from_id($id) {
 	}
 
 	$fivestar_table = KEETUP_FIVESTAR_TABLE;
-	
+
 	return get_data_row("SELECT * FROM {$fivestar_table} WHERE id = {$id}", 'row_to_fivestar');
 }
 
@@ -35,7 +35,6 @@ function row_to_fivestar($row) {
 	return new KeetupFivestarEntity($row);
 }
 
-
 /**
  * Deletes a keetup fivestar using its ID.
  *
@@ -49,7 +48,6 @@ function keetup_fivestar_delete_by_id($id) {
 	}
 	return $annotation->delete();
 }
-
 
 /**
  * Creates a fivestar entity
@@ -65,10 +63,10 @@ function keetup_fivestar_delete_by_id($id) {
  */
 function keetup_fivestar_create_entity($entity_guid, $value, $ip, $owner_guid) {
 	$result = FALSE;
-	
+
 	$entity_guid = (int) $entity_guid;
 	$value = (float) $value;
-	
+
 	$ip_long = (double) $ip;
 	if (FALSE == $ip_long) {
 		$ip_long = ip2long($ip);
@@ -78,26 +76,25 @@ function keetup_fivestar_create_entity($entity_guid, $value, $ip, $owner_guid) {
 	if ($owner_guid == 0) {
 		$owner_guid = elgg_get_logged_in_user_guid();
 	}
-	
+
 	$time = time();
-	
+
 	$entity = get_entity($entity_guid);
-	
+
 	if (!($entity instanceof ElggEntity)) {
 		throw New Exception('The entity does not exists');
 	}
-	
+
 	if (empty($value)) {
 		throw New Exception('You cant vote empty');
 	}
-	
+
 	/**
 	 * @TODO:
-	 *	Add validations when the user is trying to vote and there is an IP but not an owner_id (anonymous user)
+	 * 	Add validations when the user is trying to vote and there is an IP but not an owner_id (anonymous user)
 	 */
-	
 	$fivestar_table = KEETUP_FIVESTAR_TABLE;
-	
+
 	if (elgg_trigger_event('keetup_fivestar', $entity->type, $entity)) {
 		// If ok then add it
 		$result = insert_data("INSERT into {$fivestar_table}
@@ -114,11 +111,47 @@ function keetup_fivestar_create_entity($entity_guid, $value, $ip, $owner_guid) {
 				return FALSE;
 			}
 		}
-	}	
-	
+	}
+
 	return $result;
 }
 
-function keetup_fivestar_update_entity($id, $value, $ip, $owner_guid) {
-	die("TODO: THIS FUNCTION");
+/**
+ * Updates a keetup fivestar 
+ * 
+ * @param integer $fivestar_id
+ * @param float $value
+ * @param integer $ip
+ * @param integer $owner_guid
+ * @return boolean
+ */
+function keetup_fivestar_update_entity($fivestar_id, $value, $ip, $owner_guid) {
+	$fivestar_id = (int) $fivestar_id;
+	$value = (float) $value;
+
+	$ip_long = (double) $ip;
+	if (FALSE == $ip_long) {
+		$ip_long = ip2long($ip);
+	}
+
+	$owner_guid = (int) $owner_guid;
+	if ($owner_guid == 0) {
+		$owner_guid = elgg_get_logged_in_user_guid();
+	}
+
+
+	$fivestar_table = KEETUP_FIVESTAR_TABLE;
+	$time = time();
+
+	// If ok then add it
+	$result = update_data("UPDATE {$fivestar_table} set
+		value='{$value}', ip='{$ip}', owner_guid='{$owner_guid}', time_updated='{$time}'
+		where id={$fivestar_id} ");
+
+	if ($result !== FALSE) {
+		$obj = keetup_fivestar_get_from_id($fivestar_id);
+		elgg_trigger_event('update', 'keetup_fivestar', $obj);
+	}
+
+	return $result;
 }
