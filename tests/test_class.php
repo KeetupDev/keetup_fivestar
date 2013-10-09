@@ -2,13 +2,20 @@
 $path = dirname(dirname(dirname(dirname(__FILE__)))).'/';
 include_once($path.'engine/start.php');
 
+//
+//$metadata = elgg_get_metadata(array(
+//	'guid' => 45,
+//	'metadata_name' => 'keetup_fivestar_rating',
+//));
+//
+//echo "<pre>";
+//print_r($metadata);
+//echo "</pre>";
+//die;
 
-$metadata = elgg_get_metadata(array(
-	'guid' => 45,
-	'metadata_name' => 'keetup_fivestar_rating',
-));
+$kh = new KeetupFivestarHandler();
 
 echo "<pre>";
-print_r($metadata);
+var_dump($kh);
 echo "</pre>";
 die;

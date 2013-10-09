@@ -13,7 +13,8 @@ class KeetupFivestarHandler {
 		$plugin = elgg_get_plugin_from_id('keetup_fivestar');
 
 		$settings = array(
-			'change_cancel' => (int) $plugin->change_cancel,
+			'change_cancel' => (int) $plugin->change_vote,
+			'change_vote' => $plugin->change_vote,
 			'stars' => (int) $plugin->stars,
 			'keetup_fivestar_view' => $plugin->keetup_fivestar_view,
 		);

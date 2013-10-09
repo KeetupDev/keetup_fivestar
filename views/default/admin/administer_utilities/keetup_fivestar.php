@@ -8,6 +8,7 @@ $ts = time ();
 $token = generate_action_token ( $ts );
 $tokenRequest = "&__elgg_token=$token&__elgg_ts=$ts";
 
+
 ?>
 
 <style>
